@@ -32,6 +32,7 @@ def baseline_models(models, datasets):
                 'Last': [],
                 'Time Taken': []}
     savedModels = {}
+    startTime = datetime.now()
     
     for modelName in models.keys():
       for i, dataset in enumerate(datasets):
@@ -51,9 +52,9 @@ def baseline_models(models, datasets):
         elif modelName == 'MultiChannelILGNN':
           arch = GraphNeuralNetwork(GSOs, ks = ks, fs = fs, f_edge = 2, readout = readout, nonlinearity = nonlinearity, idxTrainMovie = idxTrainMovie, penaltyMultiplier=0.5, device = device).to(device)
         elif modelName == 'MultigraphNN':
-          arch = MultiGraphNeuralNetwork(GSOs, depths = [2], fs = fs, readout = readout, nonlinearity = nonlinearity, idxTrainMovie = idxTrainMovie, penaltyMultiplier=0).to(device)
+          arch = MultiGraphNeuralNetwork(GSOs, depths = [2], fs = fs, readout = readout, nonlinearity = nonlinearity, idxTrainMovie = idxTrainMovie, penaltyMultiplier=0, device = device).to(device)
         elif modelName == 'MultigraphILNN':
-          arch = MultiGraphNeuralNetwork(GSOs, depths = [2], fs = fs, readout = readout, nonlinearity = nonlinearity, idxTrainMovie = idxTrainMovie, penaltyMultiplier=0.5).to(device)
+          arch = MultiGraphNeuralNetwork(GSOs, depths = [2], fs = fs, readout = readout, nonlinearity = nonlinearity, idxTrainMovie = idxTrainMovie, penaltyMultiplier=0.5, device = device).to(device)
         else:
           break
 
@@ -68,22 +69,24 @@ def baseline_models(models, datasets):
         savedModels[(modelName, i)] = (bestModel, lastModel)
         torch.cuda.empty_cache()
     
-    fn = 'results/stabilityBaselines/' + str(datetime.datetime.now()) + '.csv'
-    pd.DataFrame(savedData).to_csv(fn)
+        fn = 'results/stabilityBaselines/' + str(startTime) + '.csv'
+        os.remove(fn)
+        pd.DataFrame(savedData).to_csv(fn)
 
-    fn = 'models/stabilityBaselines/' + str(datetime.datetime.now()) + '.csv'
-    with open(fn, 'wb') as handle:
-      pickle.dump(savedModels, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        fn = 'models/stabilityBaselines/' + str(startTime) + '.pkl'
+        os.remove(fn)
+        with open(fn, 'wb') as handle:
+          pickle.dump(savedModels, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
     # Specify which models
     models = {}
     models['Linear'] = {'GSOs': 1}
     models['SimpleGNN'] = {'GSOs': 1}
-    models['SimpleILGNN'] = {'GSOs': 1}
-    models['MultiChannelGNN'] = {'GSOs': 2}
-    models['MultiChannelILGNN'] = {'GSOs': 2}
-    models['MultigraphNN'] = {'GSOs': 2}
+    #models['SimpleILGNN'] = {'GSOs': 1}
+    #models['MultiChannelGNN'] = {'GSOs': 2}
+    #models['MultiChannelILGNN'] = {'GSOs': 2}
+    #models['MultigraphNN'] = {'GSOs': 2}
     #models['MultigraphILNN'] = {'GSOs': 2}
 
     # Specify which datasets

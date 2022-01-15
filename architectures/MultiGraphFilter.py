@@ -4,7 +4,7 @@ from typing import List, Union, Tuple, Callable
 import numpy as np
 
 class MultiGraphFilter(nn.Module):
-    def __init__(self, GSOs, f_in=1, f_out=1, f_edge=1, bias = True):
+    def __init__(self, GSOs, f_in=1, f_out=1, f_edge=1, bias = True, device = 'cpu'):
         """
         A multigraph filter layer.
         Args:
@@ -19,7 +19,7 @@ class MultiGraphFilter(nn.Module):
         self.f_in = f_in
         self.f_out = f_out
         self.f_edge = f_edge
-
+        self.device = device
         self.weight = nn.Parameter(torch.ones(self.f_out, self.f_edge, len(self.GSOs) + 1, self.f_in))
         torch.nn.init.normal_(self.weight, 0, 3)
         if bias:
@@ -58,7 +58,7 @@ class MultiGraphFilter(nn.Module):
         # all e, and therefore, the same signal values have to be used along all
         # edge feature dimensions.
         for k in range(len(S)):
-            xNew = torch.zeros(B,E,G,N).to(device)
+            xNew = torch.zeros(B,E,G,N).to(self.device)
             for batch in range(B):
               for e in range(E):
                 # e = 0 for x since it is same signal

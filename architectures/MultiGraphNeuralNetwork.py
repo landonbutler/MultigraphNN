@@ -14,14 +14,15 @@ class MultiGraphNeuralNetwork(nn.Module):
                  readout: Union[List[int], Tuple[int]] = (1, 1),
                  nonlinearity = torch.nn.Sigmoid(),
                  idxTrainMovie = 0,
-                 penaltyMultiplier = 0):
+                 penaltyMultiplier = 0,
+                 device = 'cpu'):
 
         super().__init__()
         self.idx = idxTrainMovie
         self.n_layers = len(depths)
         self.nonlinearity = nonlinearity
         self.term_idxs = [self.generate_term_idxs(len(GSOs),d) for d in depths]
-
+        self.device = device
         self.origGSOs = GSOs
         
         self.GSOs = [self.find_term_matrices(GSOs, self.term_idxs[layer]) for layer in range(len(self.term_idxs))]
@@ -34,7 +35,7 @@ class MultiGraphNeuralNetwork(nn.Module):
             f_in = fs[i]
             f_out = fs[i + 1]
             depth = self.depths[i]
-            gfl = MultiGraphFilter(self.GSOs[i], f_in, f_out)
+            gfl = MultiGraphFilter(self.GSOs[i], f_in, f_out, device = device)
             activation = torch.nn.Sigmoid()
             self.convLayers += [gfl, activation]
             self.add_module(f"gfl{i}", gfl)
@@ -90,7 +91,7 @@ class MultiGraphNeuralNetwork(nn.Module):
           shape = coo.shape
 
           GSOsparse = torch.sparse.DoubleTensor(i, v, torch.Size(shape))
-          GSO_interactions.append(GSOsparse.transpose(0,1).to(device))
+          GSO_interactions.append(GSOsparse.transpose(0,1).to(self.device))
         return GSO_interactions
     
     def ILconstantComp(self, EOpers, layer, oper):
