@@ -1,9 +1,10 @@
-
-
-
+import torch; torch.set_default_dtype(torch.float64)
+import torch.nn as nn
+from typing import List, Union, Tuple, Callable
+import numpy as np
 
 class GraphFilter(nn.Module):
-    def __init__(self, k: int, f_in=1, f_out=1, f_edge=1, bias=True, sparse=False):
+    def __init__(self, k: int, f_in=1, f_out=1, f_edge=1, bias=True, sparse=False, device = 'cpu'):
         """
         A graph filter layer.
         Args:
@@ -18,6 +19,7 @@ class GraphFilter(nn.Module):
         self.f_out = f_out
         self.f_edge = f_edge
         self.sparse = sparse
+        self.device = device
 
         self.weight = nn.Parameter(torch.ones(self.f_out, self.f_edge, self.k, self.f_in))
         torch.nn.init.normal_(self.weight, 0, 3)
@@ -50,7 +52,7 @@ class GraphFilter(nn.Module):
         for k in range(1, K):
             
             # Sparse multiplication
-            xNew = torch.zeros(B,E,G,N).to(device)
+            xNew = torch.zeros(B,E,G,N).to(self.device)
             for batch in range(B):
                 for e in range(E):
                     # e = 0 for x since it is same signal

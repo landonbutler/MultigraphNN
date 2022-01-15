@@ -1,3 +1,11 @@
+import torch; torch.set_default_dtype(torch.float64)
+import torch.nn as nn
+from typing import List, Union, Tuple, Callable
+import numpy as np
+from numpy import linalg as LA
+from scipy.sparse import coo_matrix
+from .GraphFilter import GraphFilter
+
 class GraphNeuralNetwork(nn.Module):
     def __init__(self,
                  GSOs,
@@ -7,7 +15,8 @@ class GraphNeuralNetwork(nn.Module):
                  f_edge = 1,
                  nonlinearity = torch.nn.Sigmoid(),
                  idxTrainMovie = 0,
-                 penaltyMultiplier = 0):
+                 penaltyMultiplier = 0,
+                 device = 'cpu'):
         """
         An L-layer graph neural network. Uses Sigmoid activation for each layer
 
@@ -23,7 +32,7 @@ class GraphNeuralNetwork(nn.Module):
         
         for ind, GSO in enumerate(GSOs):
           w, _ = LA.eig(GSO)
-          self.eigenvalues[ind,:] = w
+          self.eigenvalues[ind,:] = np.real(w)
           coo = coo_matrix(GSO)
           values = coo.data
           indices = np.vstack((coo.row, coo.col))
@@ -56,7 +65,7 @@ class GraphNeuralNetwork(nn.Module):
             f_in = fs[i]
             f_out = fs[i + 1]
             k = ks[i]
-            gfl = GraphFilter(k, f_in, f_out, self.f_edge)
+            gfl = GraphFilter(k, f_in, f_out, self.f_edge, device = device)
             activation = self.nonlinearity
             self.convLayers += [gfl, activation]
             self.add_module(f"gfl{i}", gfl)

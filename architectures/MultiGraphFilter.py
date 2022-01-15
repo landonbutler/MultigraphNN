@@ -1,5 +1,7 @@
-
-
+import torch; torch.set_default_dtype(torch.float64)
+import torch.nn as nn
+from typing import List, Union, Tuple, Callable
+import numpy as np
 
 class MultiGraphFilter(nn.Module):
     def __init__(self, GSOs, f_in=1, f_out=1, f_edge=1, bias = True):
