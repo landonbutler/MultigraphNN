@@ -1,7 +1,7 @@
 
 
-
 models = {}
+models['Linear'] = {'GSOs': 1}
 models['SimpleGNN'] = {'GSOs': 1}
 models['SimpleILGNN'] = {'GSOs': 1}
 models['MultiChannelGNN'] = {'GSOs': 2}
