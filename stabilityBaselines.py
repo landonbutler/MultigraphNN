@@ -3,6 +3,7 @@ import torch; torch.set_default_dtype(torch.float64)
 import torch.nn as nn
 import time
 from datetime import datetime
+import pandas as pd
 
 from utils.utils import RMSE
 from utils.trainingLoop import trainingLoop
@@ -32,7 +33,7 @@ def baseline_models(models, datasets):
                 'Last': [],
                 'Time Taken': []}
     savedModels = {}
-    startTime = datetime.now()
+    startTime = str(datetime.now()).split(' ')[0]
     
     for modelName in models.keys():
       for i, dataset in enumerate(datasets):
@@ -69,12 +70,14 @@ def baseline_models(models, datasets):
         savedModels[(modelName, i)] = (bestModel, lastModel)
         torch.cuda.empty_cache()
     
-        fn = 'results/stabilityBaselines/' + str(startTime) + '.csv'
-        os.remove(fn)
+        fn = 'results/stabilityBaselines/' + startTime + '.csv'
+        if os.path.isfile(fn):
+            os.remove(fn)
         pd.DataFrame(savedData).to_csv(fn)
 
-        fn = 'models/stabilityBaselines/' + str(startTime) + '.pkl'
-        os.remove(fn)
+        fn = 'models/stabilityBaselines/' + startTime + '.pkl'
+        if os.path.isfile(fn):
+            os.remove(fn)
         with open(fn, 'wb') as handle:
           pickle.dump(savedModels, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -83,10 +86,10 @@ if __name__ == '__main__':
     models = {}
     models['Linear'] = {'GSOs': 1}
     models['SimpleGNN'] = {'GSOs': 1}
-    #models['SimpleILGNN'] = {'GSOs': 1}
-    #models['MultiChannelGNN'] = {'GSOs': 2}
-    #models['MultiChannelILGNN'] = {'GSOs': 2}
-    #models['MultigraphNN'] = {'GSOs': 2}
+    models['SimpleILGNN'] = {'GSOs': 1}
+    models['MultiChannelGNN'] = {'GSOs': 2}
+    models['MultiChannelILGNN'] = {'GSOs': 2}
+    models['MultigraphNN'] = {'GSOs': 2}
     #models['MultigraphILNN'] = {'GSOs': 2}
 
     # Specify which datasets
@@ -96,4 +99,4 @@ if __name__ == '__main__':
     os.remove('data/datasets.pkl') # delete pkl file
 
     # Run baseline models script
-    baseline_models(models, [datasets[0]])
+    baseline_models(models, datasets)

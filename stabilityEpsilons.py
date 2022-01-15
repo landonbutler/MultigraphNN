@@ -3,6 +3,7 @@ import torch; torch.set_default_dtype(torch.float64)
 import torch.nn as nn
 import time
 from datetime import datetime
+import pandas as pd
 
 from utils.utils import RMSE
 from utils.trainingLoop import trainingLoop
@@ -10,6 +11,8 @@ from utils.trainingLoop import trainingLoop
 from architectures.Linear import Linear
 from architectures.GraphNeuralNetwork import GraphNeuralNetwork
 from architectures.MultiGraphNeuralNetwork import MultiGraphNeuralNetwork
+
+
 
 def epsilon_models(models, datasets, Es):
     lossFunction = nn.SmoothL1Loss()
@@ -32,7 +35,7 @@ def epsilon_models(models, datasets, Es):
                 'Time Taken': []
                 }
     savedModels = {}
-    startTime = datetime.now()
+    startTime = str(datetime.now()).replace(' ','')
     
     for modelName in models.keys():
       for i, dataset in enumerate(datasets):
@@ -74,10 +77,14 @@ def epsilon_models(models, datasets, Es):
           savedModels[(modelName, i, e)] = (bestModel, lastModel)
           torch.cuda.empty_cache()
     
-          fn = 'results/stabilityEpsilons/' + str(startTime) + '.csv'
+          fn = 'results/stabilityEpsilons/' + startTime + '.csv'
+          if os.path.isfile(fn):
+            os.remove(fn)
           pd.DataFrame(savedData).to_csv(fn)
 
-          fn = 'models/stabilityEpsilons/' + str(startTime) + '.pkl'
+          fn = 'models/stabilityEpsilons/' + startTime + '.pkl'
+          if os.path.isfile(fn):
+            os.remove(fn)
           with open(fn, 'wb') as handle:
             pickle.dump(savedModels, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -100,7 +107,7 @@ if __name__ == '__main__':
 
     # Specify which Es
     n = datasets[0][0].shape[0]
-    epsilons = np.logspace(-3, 0, num=10)
+    epsilons = np.logspace(-3, 0, num = 10)
     np.random.seed(0)
     Es = []
     for eps in epsilons:
