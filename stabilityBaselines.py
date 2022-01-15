@@ -25,7 +25,6 @@ def baseline_models(models, datasets):
     readout = [16,1]
     fs = [1,8]
     ks = [3]
-    saveFilename = 'results/stabilityBaselines/baselineModels.csv'
 
     savedData = {'Models': [],
                 'Iterations': [], 

@@ -51,3 +51,8 @@ class Linear(nn.Module):
         for i, layer in enumerate(self.convLayers):
             x = layer(x, self.S)
         return x[:,self.idx,:]
+
+    def conv_forward(self, x):
+        for i, layer in enumerate(self.convLayers):
+            x = layer(x, self.S)
+        return x[:,self.idx,:]

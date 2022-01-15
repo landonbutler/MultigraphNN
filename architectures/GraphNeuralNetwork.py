@@ -109,6 +109,11 @@ class GraphNeuralNetwork(nn.Module):
         # scale score to be between [1,5]
         return (1 + 4 * torch.sigmoid(x))[:,self.idx,:]
 
+    def conv_forward(self, x):
+        for i, layer in enumerate(self.convLayers):
+            x = layer(x, self.S) if i % 2 == 0 else layer(x)
+        return x[:,self.idx,:]
+
     def ILconstant(self, skipCalc = False):
         
         E = self.f_edge

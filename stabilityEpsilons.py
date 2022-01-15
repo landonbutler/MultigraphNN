@@ -4,6 +4,7 @@ import torch.nn as nn
 import time
 from datetime import datetime
 import pandas as pd
+import numpy as np
 
 from utils.utils import RMSE
 from utils.trainingLoop import trainingLoop
@@ -35,7 +36,7 @@ def epsilon_models(models, datasets, Es):
                 'Time Taken': []
                 }
     savedModels = {}
-    startTime = str(datetime.now()).replace(' ','')
+    startTime = str(datetime.now()).split(' ')[0]
     
     for modelName in models.keys():
       for i, dataset in enumerate(datasets):
@@ -111,7 +112,7 @@ if __name__ == '__main__':
     np.random.seed(0)
     Es = []
     for eps in epsilons:
-        Es.append([np.random.uniform((1-eps) * eps, eps, size = n) for _ in range(len(datasets))])
+        Es.append([np.diag(np.random.uniform((1-eps) * eps, eps, size = n)) for _ in range(len(datasets))])
 
     # Run epsilon models script
-    baseline_models(models, datasets, Es)
+    epsilon_models(models, datasets, Es)
