@@ -12,5 +12,5 @@ If using this code or work presented in the paper, please cite:
   number={},
   pages={933-946},
   doi={10.1109/TSP.2023.3259144}
-  }
+}
 ```
